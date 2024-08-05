@@ -15,11 +15,17 @@ const App = () => {
       delete item.myData.type
     })
 
-    // issues 2: When using it in react, there will still be an error message `TypeError: Cannot read properties of undefined (reading 'clearRect')`
-    canvas.loadFromJSON(dataJson).then(() => {
-      canvas.requestRenderAll()
-    })
+    const controller = new AbortController()
+    canvas
+      .loadFromJSON(dataJson, undefined, { signal: controller.signal })
+      .then(() => {
+        canvas.requestRenderAll()
+      })
+      .catch((e) => {
+        console.error(e.message ?? 'aborted')
+      })
     return () => {
+      controller.abort()
       canvas.dispose()
     }
   }, [])
